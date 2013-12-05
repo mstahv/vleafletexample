@@ -50,7 +50,9 @@ public class GisUI extends UI implements ClickListener, CloseListener {
 
 	private Label infoText = new Label("<h1>V-Leaflet example</h1>"
 			+ "<p>This is small example app to demonstrate how to "
-			+ "add simple GIS features to your Vaadin apps.</p>",
+			+ "add simple GIS features to your Vaadin apps. " 
+			+ "<a href='https://github.com/mstahv/vleafletexample'>"
+			+ "Check out sources</a></p>",
 			ContentMode.HTML);
 	private Table table;
 	private Button addNew = new Button("new event with location", this);
