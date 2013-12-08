@@ -3,9 +3,9 @@ package org.peimari.vleafletexample;
 import org.peimari.vleafletexample.domain.EventWithPoint;
 import org.peimari.vleafletexample.domain.EventWithRoute;
 import org.peimari.vleafletexample.domain.SpatialEvent;
-import org.peimari.vleafletexample.jtsfields.JTSField;
-import org.peimari.vleafletexample.jtsfields.LineStringField;
-import org.peimari.vleafletexample.jtsfields.PointField;
+import org.vaadin.addon.leaflet.util.AbstractJTSField;
+import org.vaadin.addon.leaflet.util.LineStringField;
+import org.vaadin.addon.leaflet.util.PointField;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.ui.Button;
@@ -27,10 +27,12 @@ public class EventEditor extends Window implements ClickListener {
 	private TextField title = new TextField("Title");
 	private DateField date = new DateField("Date");
 	/* Used for EventWithPoint, field used for bean binding */
+	@SuppressWarnings("unused")
 	private PointField location;
 	/* Used for EventWithRoute, field used for bean binding */
+	@SuppressWarnings("unused")
 	private LineStringField route;
-	private JTSField<?> geometryField;
+	private AbstractJTSField<?> geometryField;
 
 	public EventEditor(SpatialEvent spatialEvent) {
 		this.spatialEvent = spatialEvent;

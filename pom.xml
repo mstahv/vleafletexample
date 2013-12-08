@@ -6,7 +6,7 @@
 	<artifactId>vleafletexample</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Vaadin Web Application</name>
+	<name>V-Leaflet Example Application</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.vaadin.addon</groupId>
 			<artifactId>v-leaflet</artifactId>
-			<version>0.4.0</version>
+			<version>0.5.0</version>
 		</dependency>
 
 		<!-- Hibernate Spatial -->
@@ -207,8 +207,8 @@
 						way compatible with Vaadin eclipse plugin. -->
 					<webappDirectory>${basedir}/src/main/webapp/VAADIN/widgetsets
 					</webappDirectory>
-					<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets
-					</hostedWebapp>
+					<hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets</hostedWebapp>
+                    <persistentunitcachedir>target/pucache</persistentunitcachedir>
 					<noServer>true</noServer>
 					<!-- Remove draftCompile when project is ready -->
 					<draftCompile>false</draftCompile>

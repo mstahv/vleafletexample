@@ -32,6 +32,7 @@ public class SpatialEvent {
 		return id;
 	}
 
+	@SuppressWarnings("unused")
 	private void setId(Long id) {
 		this.id = id;
 	}
@@ -52,11 +53,11 @@ public class SpatialEvent {
 		this.title = title;
 	}
 
-	protected Geometry getGeom() {
+	public Geometry getGeom() {
 		return geom;
 	}
 
-	protected void setGeom(Geometry geom) {
+	public void setGeom(Geometry geom) {
 		this.geom = geom;
 	}
 
