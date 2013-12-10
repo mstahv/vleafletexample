@@ -13,10 +13,12 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.Reindeer;
+import org.apache.log4j.Logger;
 
 public class EventEditor extends Window implements ClickListener {
 	private final SpatialEvent spatialEvent;
@@ -80,7 +82,15 @@ public class EventEditor extends Window implements ClickListener {
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == save) {
-			JPAUtil.saveOrPersist(spatialEvent);
+			try {
+				JPAUtil.saveOrPersist(spatialEvent);
+			} catch (Exception e) {
+				// Most likely a concurrent modification
+				Notification.show("Saving entity failed due to concurrent modification",
+						Notification.Type.ERROR_MESSAGE);
+				Logger.getLogger(EventEditor.class).info("JPA Exception", e);
+				JPAUtil.refresh(spatialEvent);
+			}
 		} else {
 			/* Reset to persisted state */
 			JPAUtil.refresh(spatialEvent);

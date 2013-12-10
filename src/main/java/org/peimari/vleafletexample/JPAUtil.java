@@ -43,8 +43,8 @@ public class JPAUtil {
 		em.persist(theEvent);
 
 		EventWithRoute eventWithPath = new EventWithRoute();
-		Coordinate[] coords = new Coordinate[] { new Coordinate(22, 60),
-				new Coordinate(23, 61), new Coordinate(22, 63) };
+		Coordinate[] coords = new Coordinate[]{new Coordinate(22, 60),
+			new Coordinate(23, 61), new Coordinate(22, 63)};
 		eventWithPath.setRoute(factory.createLineString(coords));
 		eventWithPath.setDate(new Date());
 		eventWithPath.setTitle("MTB cup 1/10");
@@ -64,22 +64,16 @@ public class JPAUtil {
 	}
 
 	/* Static helper methods that use entity manager from active GisUI */
-
 	public static void saveOrPersist(SpatialEvent entity) {
 		EntityManager em = GisUI.get().getEntityManager();
 		/* Save or persist the edited JPA entity */
 		em.getTransaction().begin();
-		try {
-			if (entity.getId() == null) {
-				em.persist(entity);
-			} else {
-				em.merge(entity);
-			}
-			em.getTransaction().commit();
-		} catch (Exception e) {
-			em.getTransaction().rollback();
-			throw new RuntimeException(e);
+		if (entity.getId() == null) {
+			em.persist(entity);
+		} else {
+			em.merge(entity);
 		}
+		em.getTransaction().commit();
 	}
 
 	public static void refresh(Object entity) {

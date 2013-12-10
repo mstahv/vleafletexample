@@ -141,21 +141,23 @@ public class GisUI extends UI implements ClickListener, CloseListener {
         map.removeAllComponents();
         map.addBaseLayer(osmTiles, "OSM");
         for (final SpatialEvent spatialEvent : events) {
-            /* 
-             * JTSUtil wil make LMarker for point event, 
-             * LPolyline for events with route 
-             */
-            AbstractLeafletLayer layer = (AbstractLeafletLayer) JTSUtil.toLayer(spatialEvent.getGeom());
+            if(spatialEvent.getGeom() != null) {
+                /* 
+                 * JTSUtil wil make LMarker for point event, 
+                 * LPolyline for events with route 
+                 */
+                AbstractLeafletLayer layer = (AbstractLeafletLayer) JTSUtil.toLayer(spatialEvent.getGeom());
 
-            /* Add click listener to open event editor */
-            layer.addClickListener(new LeafletClickListener() {
-                @Override
-                public void onClick(LeafletClickEvent event) {
-                    EventEditor eventEditor = new EventEditor(spatialEvent);
-                    addWindow(eventEditor);
-                }
-            });
-            map.addLayer(layer);
+                /* Add click listener to open event editor */
+                layer.addClickListener(new LeafletClickListener() {
+                    @Override
+                    public void onClick(LeafletClickEvent event) {
+                        EventEditor eventEditor = new EventEditor(spatialEvent);
+                        addWindow(eventEditor);
+                    }
+                });
+                map.addLayer(layer);
+            }
         }
         map.zoomToContent();
 

@@ -10,18 +10,25 @@ import javax.persistence.Id;
 import org.hibernate.annotations.Type;
 
 import com.vividsolutions.jts.geom.Geometry;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 @Entity
 public class SpatialEvent {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String title;
 
+	@Temporal(TemporalType.DATE)
 	private Date date;
-	
+
+	@Version
+	private Long version;
+
 	@Type(type = "org.hibernate.spatial.GeometryType")
 	private Geometry geom;
 
@@ -35,6 +42,14 @@ public class SpatialEvent {
 	@SuppressWarnings("unused")
 	private void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	protected void setVersion(Long version) {
+		this.version = version;
 	}
 
 	public Date getDate() {
