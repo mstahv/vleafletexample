@@ -10,8 +10,6 @@
 		<class>org.peimari.vleafletexample.domain.EventWithPoint</class>
 		<class>org.peimari.vleafletexample.domain.EventWithRoute</class>
 		<properties>
-			<property name="hibernate.dialect"
-				value="org.hibernate.spatial.dialect.h2geodb.GeoDBDialect" />
 			<property name="hibernate.hbm2ddl.auto" value="create-drop" />
 			<property name="eclipselink.jdbc.platform"
 				value="org.eclipse.persistence.platform.database.H2Platform" />

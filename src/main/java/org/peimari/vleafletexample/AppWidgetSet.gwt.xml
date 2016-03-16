@@ -29,5 +29,11 @@
     -->
     <!-- <set-configuration-property name="devModeRedirectEnabled" value="true" /> -->
 
-    <inherits name="org.vaadin.addon.leaflet.draw.DrawWidgetset" />
+    
+
+    <inherits name="org.vaadin.addon.leaflet.Widgetset" />
+
+    <inherits name="org.vaadin.addon.leaflet.editable.EditableWidgetset" />
+
+    <inherits name="com.vaadin.addon.contextmenu.WidgetSet" />
 </module>

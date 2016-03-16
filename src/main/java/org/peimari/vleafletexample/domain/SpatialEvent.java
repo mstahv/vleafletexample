@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import org.hibernate.annotations.Type;
 
 import com.vividsolutions.jts.geom.Geometry;
+import javax.persistence.Column;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -29,7 +30,7 @@ public class SpatialEvent {
 	@Version
 	private Long version;
 
-	@Type(type = "org.hibernate.spatial.GeometryType")
+	@Column(columnDefinition = "geometry")
 	private Geometry geom;
 
 	public SpatialEvent() {

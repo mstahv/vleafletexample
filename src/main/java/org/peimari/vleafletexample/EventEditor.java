@@ -4,7 +4,6 @@ import org.peimari.vleafletexample.domain.EventWithPoint;
 import org.peimari.vleafletexample.domain.EventWithRoute;
 import org.peimari.vleafletexample.domain.SpatialEvent;
 import org.vaadin.addon.leaflet.util.AbstractJTSField;
-import org.vaadin.addon.leaflet.util.LineStringField;
 import org.vaadin.addon.leaflet.util.PointField;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
@@ -15,18 +14,20 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.Reindeer;
 import org.apache.log4j.Logger;
+import org.vaadin.addon.leaflet.editable.LineStringField;
+import org.vaadin.viritin.button.PrimaryButton;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 public class EventEditor extends Window implements ClickListener {
 	private final SpatialEvent spatialEvent;
 
-	private Button save = new Button("Save", this);
+	private Button save = new PrimaryButton("Save", this);
 	private Button cancel = new Button("Cancel", this);
 
-	private TextField title = new TextField("Title");
+	private TextField title = new MTextField("Title");
 	private DateField date = new DateField("Date");
 	/* Used for EventWithPoint, field used for bean binding */
 	@SuppressWarnings("unused")
@@ -53,30 +54,20 @@ public class EventEditor extends Window implements ClickListener {
 		setModal(true);
 		setClosable(false); // only via save/cancel
 
-		/* Configure components */
-		save.setStyleName(Reindeer.BUTTON_DEFAULT);
-
 		/* Build layout */
-		VerticalLayout verticalLayout = new VerticalLayout();
-		verticalLayout.setMargin(true);
-		verticalLayout.setSpacing(true);
-		verticalLayout.addComponents(title, date, geometryField,
-				new HorizontalLayout(save, cancel));
-		verticalLayout.setExpandRatio(geometryField, 1);
-		verticalLayout.setSizeFull();
+		MVerticalLayout verticalLayout = new MVerticalLayout(title, date, geometryField,
+				new HorizontalLayout(save, cancel)).expand(geometryField);
 		setContent(verticalLayout);
 
 		/* Bind data to fields */
 		bindFields(spatialEvent);
+        title.focus();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void bindFields(SpatialEvent e) {
 		/* Std. naming convention based Vaadin field binding. */
-		BeanFieldGroup group = new BeanFieldGroup(e.getClass());
-		group.setItemDataSource(e);
-		group.setBuffered(false);
-		group.bindMemberFields(this);
+        BeanFieldGroup.bindFieldsUnbuffered(e, this);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.peimari.vleafletexample;
 
+import com.vaadin.addon.contextmenu.ContextMenu;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -11,32 +12,34 @@ import org.peimari.vleafletexample.domain.SpatialEvent;
 import org.vaadin.addon.leaflet.AbstractLeafletLayer;
 import org.vaadin.addon.leaflet.LMap;
 import org.vaadin.addon.leaflet.LTileLayer;
-import org.vaadin.addon.leaflet.LeafletClickEvent;
-import org.vaadin.addon.leaflet.LeafletClickListener;
 import org.vaadin.addon.leaflet.util.JTSUtil;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
+import org.vaadin.addon.leaflet.LOpenStreetMapLayer;
+import org.vaadin.addon.leaflet.shared.Point;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.fields.MTable;
+import org.vaadin.viritin.label.RichText;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
-@Theme("mytheme")
+@Theme("valo")
 @SuppressWarnings("serial")
 public class GisUI extends UI implements ClickListener, CloseListener {
+
+    private Point lastContextMenuPosition;
 
     @WebServlet(value = "/*", asyncSupported = true)
     @VaadinServletConfiguration(productionMode = false, ui = GisUI.class, widgetset = "org.peimari.vleafletexample.AppWidgetSet")
@@ -45,18 +48,16 @@ public class GisUI extends UI implements ClickListener, CloseListener {
 
     private EntityManager em;
 
-    private Label infoText = new Label("<h1>V-Leaflet example</h1>"
-            + "<p>This is small example app to demonstrate how to "
-            + "add simple GIS features to your Vaadin apps. "
-            + "<a href='https://github.com/mstahv/vleafletexample'>"
-            + "Check out sources</a></p>",
-            ContentMode.HTML);
-    private Table table;
-    private Button addNew = new Button("new event with location", this);
-    private Button addNewWithRoute = new Button("new event with route", this);
+    private RichText infoText = new RichText().withMarkDown(
+            "###V-Leaflet example\n\n"
+            + "This is small example app to demonstrate how to add simple GIS "
+            + "features to your Vaadin apps. "
+            + "[Check out the sources!](https://github.com/mstahv/vleafletexample)");
+    private MTable<SpatialEvent> table;
+    private Button addNew = new Button("Add event with a location", this);
+    private Button addNewWithRoute = new Button("Add event with a route", this);
     private LMap map = new LMap();
-    private LTileLayer osmTiles = new LTileLayer(
-            "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
+    private LTileLayer osmTiles = new LOpenStreetMapLayer();
 
     public static GisUI get() {
         return (GisUI) UI.getCurrent();
@@ -79,51 +80,45 @@ public class GisUI extends UI implements ClickListener, CloseListener {
     @Override
     protected void init(VaadinRequest request) {
 
-        table = new Table();
+        table = new MTable<>(SpatialEvent.class);
         table.setWidth("100%");
 
-        table.addGeneratedColumn("Actions", new ColumnGenerator() {
-
-            @Override
-            public Object generateCell(Table source, final Object spatialEvent,
-                    Object columnId) {
-                Button edit = new Button("Edit", new ClickListener() {
-
-                    @Override
-                    public void buttonClick(ClickEvent event) {
-                        SpatialEvent pojo = (SpatialEvent) spatialEvent;
-                        EventEditor eventEditor = new EventEditor(pojo);
-                        addWindow(eventEditor);
-                    }
-                });
-                Button delete = new Button("Delete", new ClickListener() {
-
-                    @Override
-                    public void buttonClick(ClickEvent event) {
-                        JPAUtil.remove(spatialEvent);
-                        table.removeItem(spatialEvent);
-                    }
-                });
-                HorizontalLayout rowActions = new HorizontalLayout(edit, delete);
-                rowActions.setSpacing(true);
-                return rowActions;
-            }
+        table.withGeneratedColumn("Actions", spatialEvent -> {
+            Button edit = new MButton(FontAwesome.EDIT, e -> {
+                EventEditor eventEditor = new EventEditor(spatialEvent);
+                addWindow(eventEditor);
+            });
+            Button delete = new MButton(FontAwesome.TRASH, e -> {
+                JPAUtil.remove(spatialEvent);
+                loadEvents();
+            });
+            return new MHorizontalLayout(edit, delete);
         });
+        table.withProperties("id", "title", "date", "Actions");
 
         loadEvents();
 
         osmTiles.setAttributionString("© OpenStreetMap Contributors");
 
-        VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(true);
-        HorizontalLayout actions = new HorizontalLayout(addNew, addNewWithRoute);
-        actions.setSpacing(true);
-        layout.addComponents(infoText, actions, map, table);
-        layout.setExpandRatio(map, 1);
-        layout.setExpandRatio(table, 1);
-        table.setSizeFull();
-        layout.setSizeFull();
-        setContent(layout);
+        HorizontalLayout actions = new MHorizontalLayout(addNew, addNewWithRoute);
+        setContent(new MVerticalLayout(infoText, actions).expand(map, table));
+
+        // You can also use ContextMenu Add-on with Vaadin
+        // Give "false" as a second parameter, we'll open context menu programmatically
+        ContextMenu contextMenu = new ContextMenu(map, false);
+        contextMenu.addItem("Add new event here", e -> {
+            EventWithPoint eventWithPoint = new EventWithPoint();
+            eventWithPoint.setLocation(JTSUtil.toPoint(lastContextMenuPosition));
+            addWindow(new EventEditor(eventWithPoint));
+        });
+
+        map.addContextMenuListener(event -> {
+            // save the point to be used by listener
+            lastContextMenuPosition = event.getPoint();
+            // you could here also configure what to show in the menu
+            contextMenu.open((int) event.getClientX(), (int) event.getClientY());
+        });
+
     }
 
     private void loadEvents() {
@@ -131,36 +126,29 @@ public class GisUI extends UI implements ClickListener, CloseListener {
         List<SpatialEvent> events = JPAUtil.listAllSpatialEvents();
 
         /* Populate table... */
-        BeanItemContainer<SpatialEvent> container = new BeanItemContainer<SpatialEvent>(
-                SpatialEvent.class);
-        container.addAll(events);
-        table.setContainerDataSource(container);
-        table.setVisibleColumns("id", "title", "date", "Actions");
+        table.setBeans(events);
 
         /* ... and map */
         map.removeAllComponents();
         map.addBaseLayer(osmTiles, "OSM");
         for (final SpatialEvent spatialEvent : events) {
-            if(spatialEvent.getGeom() != null) {
+            if (spatialEvent.getGeom() != null) {
                 /* 
                  * JTSUtil wil make LMarker for point event, 
                  * LPolyline for events with route 
                  */
-                AbstractLeafletLayer layer = (AbstractLeafletLayer) JTSUtil.toLayer(spatialEvent.getGeom());
+                AbstractLeafletLayer layer = (AbstractLeafletLayer) JTSUtil.
+                        toLayer(spatialEvent.getGeom());
 
                 /* Add click listener to open event editor */
-                layer.addClickListener(new LeafletClickListener() {
-                    @Override
-                    public void onClick(LeafletClickEvent event) {
-                        EventEditor eventEditor = new EventEditor(spatialEvent);
-                        addWindow(eventEditor);
-                    }
+                layer.addClickListener(event -> {
+                    EventEditor eventEditor = new EventEditor(spatialEvent);
+                    addWindow(eventEditor);
                 });
                 map.addLayer(layer);
             }
         }
         map.zoomToContent();
-
     }
 
     @Override
