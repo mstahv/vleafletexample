@@ -103,8 +103,9 @@ public class GisUI extends UI implements ClickListener, CloseListener {
         HorizontalLayout actions = new MHorizontalLayout(addNew, addNewWithRoute);
         setContent(new MVerticalLayout(infoText, actions).expand(map, table));
 
-        // You can also use ContextMenu Add-on with Vaadin
-        // Give "false" as a second parameter, we'll open context menu programmatically
+        // You can also use ContextMenu Add-on with Leaflemap 
+        // Give "false" as a second parameter -> disables automatic opening of the menu.
+        // We'll open context menu programmatically
         ContextMenu contextMenu = new ContextMenu(map, false);
         contextMenu.addItem("Add new event here", e -> {
             EventWithPoint eventWithPoint = new EventWithPoint();
@@ -112,8 +113,9 @@ public class GisUI extends UI implements ClickListener, CloseListener {
             addWindow(new EventEditor(eventWithPoint));
         });
 
+        // Hook to context menu event API by the Leaflet Map
         map.addContextMenuListener(event -> {
-            // save the point to be used by listener
+            // save the point to be used by context menu listener
             lastContextMenuPosition = event.getPoint();
             // you could here also configure what to show in the menu
             contextMenu.open((int) event.getClientX(), (int) event.getClientY());
